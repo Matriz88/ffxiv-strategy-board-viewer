@@ -293,22 +293,26 @@ async function drawObject(obj: SBObject) {
     }
 }
 
+const BACKGROUND_COUNT = 7;
+
+async function drawBackground(ctx: CanvasRenderingContext2D, backgroundId: number) {
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, 1024, 768);
+
+    if (backgroundId < 1 || backgroundId > BACKGROUND_COUNT) {
+        return;
+    }
+
+    const background = await loadCachedImage(`assets/background/${backgroundId}`);
+    ctx.drawImage(background, 0, 0);
+}
+
 export async function drawStrategyBoard(strategyBoardData: Uint8Array) {
     const strategyBoard = parseStrategyBoardData(strategyBoardData);
 
     const ctx = getCanvasContext();
     ctx.clearRect(0, 0, 1024, 768);
-    ctx.fillStyle = '#000';
-    ctx.fillRect(0, 0, 1024, 768);
-
-    if (strategyBoard.background !== 0) {
-        try {
-            const background = await loadCachedImage(`assets/background/${strategyBoard.background}`);
-            ctx.drawImage(background, 0, 0);
-        } catch {
-            // Missing background asset; keep the solid fill.
-        }
-    }
+    await drawBackground(ctx, strategyBoard.background);
 
     for (const obj of strategyBoard.objects) {
         await drawObject(obj);
